@@ -1,4 +1,5 @@
 import express from "express";
+import cors from 'cors';
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
@@ -12,6 +13,16 @@ const supabase = createClient(
 );
 
 const app = express();
+app.use(
+  cors({
+    origin: [
+      'https://bloodbridge-eta.vercel.app',
+      'http://localhost:3000',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());

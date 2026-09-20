@@ -1,6 +1,6 @@
-================================================================================
+
  BLOODBRIDGE(MEDITECH)— Blood & Platelet Rapid Response System
-================================================================================
+===============================================================================
 
 A real-time, AI-assisted emergency blood and platelet coordination platform.
 It helps hospitals raise urgent blood/platelet requests, match them against

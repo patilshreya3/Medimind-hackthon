@@ -190,7 +190,7 @@ export const EmergencyRequestForm: React.FC<EmergencyRequestFormProps> = ({
   };
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/blood-requests`, {
+    const response = await fetch(`/api/blood-requests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

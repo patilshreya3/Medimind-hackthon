@@ -14,9 +14,6 @@ const supabase = createClient(
 const app = express();
 
 const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`MEDITECH Server listening on http://0.0.0.0:${PORT}`);
-});
 
 app.use(express.json());
 
@@ -44,17 +41,24 @@ app.post("/api/blood-requests", async (req, res) => {
 
       blood_group: request.bloodGroup,
       component_type: request.componentType,
-      units_required: request.unitsNeeded ?? request.unitsRequired,
+      units_required:
+        request.unitsNeeded ?? request.unitsRequired,
 
       urgency: request.urgency,
-      required_within_hours: request.requiredWithinHours,
+      required_within_hours:
+        request.requiredWithinHours,
 
       status: request.status ?? "searching",
       triage_score: request.triageScore,
 
-      privacy_masked: request.privacyMasked ?? true,
-      hospital_verification_id: request.hospitalVerificationId,
-      doctor_notes: request.doctorNotes,
+      privacy_masked:
+        request.privacyMasked ?? true,
+
+      hospital_verification_id:
+        request.hospitalVerificationId,
+
+      doctor_notes:
+        request.doctorNotes,
     };
 
     const { data, error } = await supabase
@@ -64,7 +68,10 @@ app.post("/api/blood-requests", async (req, res) => {
       .single();
 
     if (error) {
-      console.error("Blood Request Insert Error:", error);
+      console.error(
+        "Blood Request Insert Error:",
+        error
+      );
 
       res.status(500).json({
         success: false,
@@ -74,16 +81,23 @@ app.post("/api/blood-requests", async (req, res) => {
       return;
     }
 
-    console.log("Blood request saved to Supabase:", data);
+    console.log(
+      "Blood request saved to Supabase:",
+      data
+    );
 
     res.json({
       success: true,
-      message: "Blood request saved successfully!",
+      message:
+        "Blood request saved successfully!",
       data,
     });
 
   } catch (error: any) {
-    console.error("Blood Request Error:", error);
+    console.error(
+      "Blood Request Error:",
+      error
+    );
 
     res.status(500).json({
       success: false,
@@ -102,10 +116,15 @@ app.get("/api/donors", async (_req, res) => {
     const { data, error } = await supabase
       .from("donors")
       .select("*")
-      .order("distance_km", { ascending: true });
+      .order("distance_km", {
+        ascending: true,
+      });
 
     if (error) {
-      console.error("Donor Fetch Error:", error);
+      console.error(
+        "Donor Fetch Error:",
+        error
+      );
 
       res.status(500).json({
         success: false,
@@ -121,7 +140,10 @@ app.get("/api/donors", async (_req, res) => {
     });
 
   } catch (error: any) {
-    console.error("Donor API Error:", error);
+    console.error(
+      "Donor API Error:",
+      error
+    );
 
     res.status(500).json({
       success: false,
@@ -138,9 +160,12 @@ app.get("/api/donors", async (_req, res) => {
 let aiClient: GoogleGenAI | null = null;
 
 function getGeminiAI(): GoogleGenAI | null {
-  if (!aiClient && process.env.GEMINI_API_KEY) {
+  if (
+    !aiClient &&
+    process.env.GEMINI_API_KEY
+  ) {
     aiClient = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
+      apiKey: process.env.GEMINI_API_KEY,
     });
   }
 
@@ -155,7 +180,7 @@ function getGeminiAI(): GoogleGenAI | null {
 app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
-    service: "MEDITECH Server"
+    service: "MEDITECH Server",
   });
 });
 
@@ -164,23 +189,28 @@ app.get("/api/health", (_req, res) => {
 // GEMINI - PARSE DOCTOR NOTE
 // ======================================================
 
-app.post("/api/gemini/parse-doctor-note", async (req, res) => {
-  try {
-    const { doctorNoteText } = req.body;
+app.post(
+  "/api/gemini/parse-doctor-note",
+  async (req, res) => {
+    try {
+      const { doctorNoteText } = req.body;
 
-    if (!doctorNoteText || typeof doctorNoteText !== "string") {
-      res.status(400).json({
-        error: "Doctor's note text is required."
-      });
+      if (
+        !doctorNoteText ||
+        typeof doctorNoteText !== "string"
+      ) {
+        res.status(400).json({
+          error:
+            "Doctor's note text is required.",
+        });
 
-      return;
-    }
+        return;
+      }
 
-    const ai = getGeminiAI();
+      const ai = getGeminiAI();
 
-    if (ai) {
-
-      const prompt = `
+      if (ai) {
+        const prompt = `
 You are a medical AI assistant for MEDITECH Emergency Blood & Platelet Availability System.
 
 Extract structured clinical emergency requirement data from the following doctor's note or medical prescription.
@@ -209,199 +239,240 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
 }
 `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
+        const response =
+          await ai.models.generateContent({
+            model: "gemini-3.8-flash",
+            contents: prompt,
+            config: {
+              responseMimeType:
+                "application/json",
+            },
+          });
 
-      const responseText = response.text?.trim() || "{}";
+        const responseText =
+          response.text?.trim() || "{}";
 
-      const parsedData = JSON.parse(responseText);
+        const parsedData =
+          JSON.parse(responseText);
+
+        res.json({
+          success: true,
+          data: parsedData,
+          source: "gemini-3.8-flash",
+        });
+
+        return;
+      }
+
+
+      // ==================================================
+      // FALLBACK PARSER
+      // ==================================================
+
+      const lower =
+        doctorNoteText.toLowerCase();
+
+
+      // Blood group
+      let bloodGroup = "O+";
+
+      const bgMatch =
+        doctorNoteText.match(
+          /\b(O|A|B|AB)[+-]\b/i
+        );
+
+      if (bgMatch) {
+        bloodGroup =
+          bgMatch[0].toUpperCase();
+      }
+
+
+      // Component
+      let componentType =
+        "platelets_sdp";
+
+      if (
+        lower.includes("sdp") ||
+        lower.includes("apheresis")
+      ) {
+        componentType =
+          "platelets_sdp";
+
+      } else if (
+        lower.includes("rdp") ||
+        lower.includes("random donor")
+      ) {
+        componentType =
+          "platelets_rdp";
+
+      } else if (
+        lower.includes("prbc") ||
+        lower.includes("packed cell") ||
+        lower.includes("packed red")
+      ) {
+        componentType =
+          "prbc";
+
+      } else if (
+        lower.includes("whole blood") ||
+        lower.includes("wb")
+      ) {
+        componentType =
+          "whole_blood";
+
+      } else if (
+        lower.includes("ffp") ||
+        lower.includes("plasma")
+      ) {
+        componentType =
+          "ffp";
+
+      } else if (
+        lower.includes("cryo")
+      ) {
+        componentType =
+          "cryo";
+      }
+
+
+      // Units
+      let unitsNeeded = 2;
+
+      const unitsMatch =
+        doctorNoteText.match(
+          /(\d+)\s*(unit|units|bag|bags|pkt|pkts)/i
+        );
+
+      if (unitsMatch) {
+        unitsNeeded =
+          parseInt(
+            unitsMatch[1],
+            10
+          ) || 2;
+      }
+
+
+      // Urgency
+      let urgency:
+        | "critical"
+        | "high"
+        | "moderate" =
+        "critical";
+
+      let requiredWithinHours = 1;
+
+      if (
+        lower.includes("stat") ||
+        lower.includes("immediately") ||
+        lower.includes("urgent") ||
+        lower.includes("emergency") ||
+        lower.includes("shock")
+      ) {
+        urgency = "critical";
+        requiredWithinHours = 0.5;
+
+      } else if (
+        lower.includes("today") ||
+        lower.includes("scheduled")
+      ) {
+        urgency = "moderate";
+        requiredWithinHours = 4;
+      }
+
+
+      // Patient name
+      let patientName =
+        "Emergency Patient";
+
+      const nameMatch =
+        doctorNoteText.match(
+          /(?:pt|patient|name|patient\s*name)[:\s]+([A-Za-z\s]+?)(?:,|\n|\d|age|yrs|yo)/i
+        );
+
+      if (
+        nameMatch &&
+        nameMatch[1].trim().length > 2
+      ) {
+        patientName =
+          nameMatch[1].trim();
+      }
+
+
+      // Age
+      let age = 32;
+
+      const ageMatch =
+        doctorNoteText.match(
+          /(\d{1,2})\s*(?:yrs|yr|years|yo|age)/i
+        );
+
+      if (ageMatch) {
+        age =
+          parseInt(
+            ageMatch[1],
+            10
+          ) || 32;
+      }
+
+
+      // Gender
+      let gender = "Female";
+
+      if (
+        lower.includes("male") &&
+        !lower.includes("female")
+      ) {
+        gender = "Male";
+
+      } else if (
+        lower.includes("female")
+      ) {
+        gender = "Female";
+      }
+
 
       res.json({
         success: true,
-        data: parsedData,
-        source: "gemini-3.8-flash"
+
+        data: {
+          patientName,
+          age,
+          gender,
+          hospitalName:
+            "Ruby Hall Clinic ICU",
+          bloodGroup,
+          componentType,
+          unitsNeeded,
+          urgency,
+          requiredWithinHours,
+          clinicalReason:
+            doctorNoteText.substring(
+              0,
+              120
+            ) + "...",
+          prescribingDoctor:
+            "Attending Emergency Physician",
+          confidenceScore: 0.88,
+        },
+
+        source:
+          "clinical-heuristic-engine",
       });
 
-      return;
+    } catch (error: any) {
+      console.error(
+        "Gemini Note Parse Error:",
+        error
+      );
+
+      res.status(500).json({
+        error:
+          "Failed to parse doctor's note.",
+        details: error.message,
+      });
     }
-
-
-    // ==================================================
-    // FALLBACK PARSER
-    // ==================================================
-
-    const lower = doctorNoteText.toLowerCase();
-
-    // Blood group
-    let bloodGroup = "O+";
-
-    const bgMatch = doctorNoteText.match(
-      /\b(O|A|B|AB)[+-]\b/i
-    );
-
-    if (bgMatch) {
-      bloodGroup = bgMatch[0].toUpperCase();
-    }
-
-
-    // Component
-    let componentType = "platelets_sdp";
-
-    if (
-      lower.includes("sdp") ||
-      lower.includes("apheresis")
-    ) {
-      componentType = "platelets_sdp";
-
-    } else if (
-      lower.includes("rdp") ||
-      lower.includes("random donor")
-    ) {
-      componentType = "platelets_rdp";
-
-    } else if (
-      lower.includes("prbc") ||
-      lower.includes("packed cell") ||
-      lower.includes("packed red")
-    ) {
-      componentType = "prbc";
-
-    } else if (
-      lower.includes("whole blood") ||
-      lower.includes("wb")
-    ) {
-      componentType = "whole_blood";
-
-    } else if (
-      lower.includes("ffp") ||
-      lower.includes("plasma")
-    ) {
-      componentType = "ffp";
-
-    } else if (
-      lower.includes("cryo")
-    ) {
-      componentType = "cryo";
-    }
-
-
-    // Units
-    let unitsNeeded = 2;
-
-    const unitsMatch = doctorNoteText.match(
-      /(\d+)\s*(unit|units|bag|bags|pkt|pkts)/i
-    );
-
-    if (unitsMatch) {
-      unitsNeeded = parseInt(unitsMatch[1], 10) || 2;
-    }
-
-
-    // Urgency
-    let urgency: "critical" | "high" | "moderate" = "critical";
-
-    let requiredWithinHours = 1;
-
-    if (
-      lower.includes("stat") ||
-      lower.includes("immediately") ||
-      lower.includes("urgent") ||
-      lower.includes("emergency") ||
-      lower.includes("shock")
-    ) {
-      urgency = "critical";
-      requiredWithinHours = 0.5;
-
-    } else if (
-      lower.includes("today") ||
-      lower.includes("scheduled")
-    ) {
-      urgency = "moderate";
-      requiredWithinHours = 4;
-    }
-
-
-    // Patient name
-    let patientName = "Emergency Patient";
-
-    const nameMatch = doctorNoteText.match(
-      /(?:pt|patient|name|patient\s*name)[:\s]+([A-Za-z\s]+?)(?:,|\n|\d|age|yrs|yo)/i
-    );
-
-    if (nameMatch && nameMatch[1].trim().length > 2) {
-      patientName = nameMatch[1].trim();
-    }
-
-
-    // Age
-    let age = 32;
-
-    const ageMatch = doctorNoteText.match(
-      /(\d{1,2})\s*(?:yrs|yr|years|yo|age)/i
-    );
-
-    if (ageMatch) {
-      age = parseInt(ageMatch[1], 10) || 32;
-    }
-
-
-    // Gender
-    let gender = "Female";
-
-    if (
-      lower.includes("male") &&
-      !lower.includes("female")
-    ) {
-      gender = "Male";
-
-    } else if (
-      lower.includes("female")
-    ) {
-      gender = "Female";
-    }
-
-
-    res.json({
-      success: true,
-
-      data: {
-        patientName,
-        age,
-        gender,
-        hospitalName: "Ruby Hall Clinic ICU",
-        bloodGroup,
-        componentType,
-        unitsNeeded,
-        urgency,
-        requiredWithinHours,
-        clinicalReason:
-          doctorNoteText.substring(0, 120) + "...",
-        prescribingDoctor:
-          "Attending Emergency Physician",
-        confidenceScore: 0.88,
-      },
-
-      source: "clinical-heuristic-engine",
-    });
-
-  } catch (error: any) {
-
-    console.error(
-      "Gemini Note Parse Error:",
-      error
-    );
-
-    res.status(500).json({
-      error: "Failed to parse doctor's note.",
-      details: error.message,
-    });
   }
-});
+);
 
 
 // ======================================================
@@ -410,37 +481,56 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
 
 async function startServer() {
 
-  if (process.env.NODE_ENV !== "production") {
+  if (
+    process.env.NODE_ENV !==
+    "production"
+  ) {
+    const {
+      createServer:
+        createViteServer,
+    } = await import("vite");
 
-    const { createServer: createViteServer } =
-      await import("vite");
+    const vite =
+      await createViteServer({
+        server: {
+          middlewareMode: true,
+        },
 
-    const vite = await createViteServer({
-      server: {
-        middlewareMode: true
-      },
+        appType: "spa",
+      });
 
-      appType: "spa",
-    });
-
-    app.use(vite.middlewares);
-
-  } else {
-
-    const distPath = path.join(
-      process.cwd(),
-      "dist"
+    app.use(
+      vite.middlewares
     );
 
-    app.use(express.static(distPath));
-
-    app.get("*", (_req, res) => {
-      res.sendFile(
-        path.join(distPath, "index.html")
+  } else {
+    const distPath =
+      path.join(
+        process.cwd(),
+        "dist"
       );
-    });
+
+    app.use(
+      express.static(distPath)
+    );
+
+    app.get(
+      "*",
+      (_req, res) => {
+        res.sendFile(
+          path.join(
+            distPath,
+            "index.html"
+          )
+        );
+      }
+    );
   }
 
+
+  // ==================================================
+  // START SERVER — ONLY ONCE
+  // ==================================================
 
   app.listen(
     PORT,

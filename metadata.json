@@ -1,0 +1,6 @@
+{
+  "name": "MEDITECH Blood & Platelet Rapid Response",
+  "description": "Emergency Blood & Platelet Availability and Rapid Response System connecting hospitals, blood banks, and donors with real-time GPS tracking and bilingual support.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

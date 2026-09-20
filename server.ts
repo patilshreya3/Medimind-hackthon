@@ -12,11 +12,9 @@ const supabase = createClient(
 );
 
 const app = express();
-
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
-
 
 // ======================================================
 // SAVE EMERGENCY BLOOD REQUEST TO SUPABASE
@@ -28,7 +26,6 @@ app.post("/api/blood-requests", async (req, res) => {
 
     const dbRequest = {
       id: request.id ?? crypto.randomUUID(),
-
       patient_name: request.patientName,
       patient_age: request.age ?? request.patientAge,
       patient_gender: request.gender ?? request.patientGender,
@@ -68,10 +65,7 @@ app.post("/api/blood-requests", async (req, res) => {
       .single();
 
     if (error) {
-      console.error(
-        "Blood Request Insert Error:",
-        error
-      );
+      console.error("Blood Request Insert Error:", error);
 
       res.status(500).json({
         success: false,
@@ -81,23 +75,15 @@ app.post("/api/blood-requests", async (req, res) => {
       return;
     }
 
-    console.log(
-      "Blood request saved to Supabase:",
-      data
-    );
+    console.log("Blood request saved to Supabase:", data);
 
     res.json({
       success: true,
-      message:
-        "Blood request saved successfully!",
+      message: "Blood request saved successfully!",
       data,
     });
-
   } catch (error: any) {
-    console.error(
-      "Blood Request Error:",
-      error
-    );
+    console.error("Blood Request Error:", error);
 
     res.status(500).json({
       success: false,
@@ -105,7 +91,6 @@ app.post("/api/blood-requests", async (req, res) => {
     });
   }
 });
-
 
 // ======================================================
 // GET DONORS FROM SUPABASE
@@ -121,10 +106,7 @@ app.get("/api/donors", async (_req, res) => {
       });
 
     if (error) {
-      console.error(
-        "Donor Fetch Error:",
-        error
-      );
+      console.error("Donor Fetch Error:", error);
 
       res.status(500).json({
         success: false,
@@ -138,12 +120,8 @@ app.get("/api/donors", async (_req, res) => {
       success: true,
       data,
     });
-
   } catch (error: any) {
-    console.error(
-      "Donor API Error:",
-      error
-    );
+    console.error("Donor API Error:", error);
 
     res.status(500).json({
       success: false,
@@ -152,7 +130,6 @@ app.get("/api/donors", async (_req, res) => {
   }
 });
 
-
 // ======================================================
 // LAZY-INITIALIZE GEMINI AI CLIENT
 // ======================================================
@@ -160,10 +137,7 @@ app.get("/api/donors", async (_req, res) => {
 let aiClient: GoogleGenAI | null = null;
 
 function getGeminiAI(): GoogleGenAI | null {
-  if (
-    !aiClient &&
-    process.env.GEMINI_API_KEY
-  ) {
+  if (!aiClient && process.env.GEMINI_API_KEY) {
     aiClient = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
@@ -171,7 +145,6 @@ function getGeminiAI(): GoogleGenAI | null {
 
   return aiClient;
 }
-
 
 // ======================================================
 // HEALTH CHECK
@@ -183,7 +156,6 @@ app.get("/api/health", (_req, res) => {
     service: "MEDITECH Server",
   });
 });
-
 
 // ======================================================
 // GEMINI - PARSE DOCTOR NOTE
@@ -200,8 +172,7 @@ app.post(
         typeof doctorNoteText !== "string"
       ) {
         res.status(400).json({
-          error:
-            "Doctor's note text is required.",
+          error: "Doctor's note text is required.",
         });
 
         return;
@@ -244,8 +215,7 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
             model: "gemini-3.8-flash",
             contents: prompt,
             config: {
-              responseMimeType:
-                "application/json",
+              responseMimeType: "application/json",
             },
           });
 
@@ -264,14 +234,12 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
         return;
       }
 
-
       // ==================================================
       // FALLBACK PARSER
       // ==================================================
 
       const lower =
         doctorNoteText.toLowerCase();
-
 
       // Blood group
       let bloodGroup = "O+";
@@ -286,7 +254,6 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
           bgMatch[0].toUpperCase();
       }
 
-
       // Component
       let componentType =
         "platelets_sdp";
@@ -295,45 +262,33 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
         lower.includes("sdp") ||
         lower.includes("apheresis")
       ) {
-        componentType =
-          "platelets_sdp";
-
+        componentType = "platelets_sdp";
       } else if (
         lower.includes("rdp") ||
         lower.includes("random donor")
       ) {
-        componentType =
-          "platelets_rdp";
-
+        componentType = "platelets_rdp";
       } else if (
         lower.includes("prbc") ||
         lower.includes("packed cell") ||
         lower.includes("packed red")
       ) {
-        componentType =
-          "prbc";
-
+        componentType = "prbc";
       } else if (
         lower.includes("whole blood") ||
         lower.includes("wb")
       ) {
-        componentType =
-          "whole_blood";
-
+        componentType = "whole_blood";
       } else if (
         lower.includes("ffp") ||
         lower.includes("plasma")
       ) {
-        componentType =
-          "ffp";
-
+        componentType = "ffp";
       } else if (
         lower.includes("cryo")
       ) {
-        componentType =
-          "cryo";
+        componentType = "cryo";
       }
-
 
       // Units
       let unitsNeeded = 2;
@@ -345,12 +300,8 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
 
       if (unitsMatch) {
         unitsNeeded =
-          parseInt(
-            unitsMatch[1],
-            10
-          ) || 2;
+          parseInt(unitsMatch[1], 10) || 2;
       }
-
 
       // Urgency
       let urgency:
@@ -370,7 +321,6 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
       ) {
         urgency = "critical";
         requiredWithinHours = 0.5;
-
       } else if (
         lower.includes("today") ||
         lower.includes("scheduled")
@@ -378,7 +328,6 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
         urgency = "moderate";
         requiredWithinHours = 4;
       }
-
 
       // Patient name
       let patientName =
@@ -397,7 +346,6 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
           nameMatch[1].trim();
       }
 
-
       // Age
       let age = 32;
 
@@ -408,12 +356,8 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
 
       if (ageMatch) {
         age =
-          parseInt(
-            ageMatch[1],
-            10
-          ) || 32;
+          parseInt(ageMatch[1], 10) || 32;
       }
-
 
       // Gender
       let gender = "Female";
@@ -423,17 +367,14 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
         !lower.includes("female")
       ) {
         gender = "Male";
-
       } else if (
         lower.includes("female")
       ) {
         gender = "Female";
       }
 
-
       res.json({
         success: true,
-
         data: {
           patientName,
           age,
@@ -446,19 +387,14 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
           urgency,
           requiredWithinHours,
           clinicalReason:
-            doctorNoteText.substring(
-              0,
-              120
-            ) + "...",
+            doctorNoteText.substring(0, 120) + "...",
           prescribingDoctor:
             "Attending Emergency Physician",
           confidenceScore: 0.88,
         },
-
         source:
           "clinical-heuristic-engine",
       });
-
     } catch (error: any) {
       console.error(
         "Gemini Note Parse Error:",
@@ -474,13 +410,11 @@ Extract and respond ONLY with a JSON object adhering strictly to this schema:
   }
 );
 
-
 // ======================================================
 // START SERVER
 // ======================================================
 
 async function startServer() {
-
   if (
     process.env.NODE_ENV !==
     "production"
@@ -495,14 +429,10 @@ async function startServer() {
         server: {
           middlewareMode: true,
         },
-
         appType: "spa",
       });
 
-    app.use(
-      vite.middlewares
-    );
-
+    app.use(vite.middlewares);
   } else {
     const distPath =
       path.join(
@@ -526,7 +456,6 @@ async function startServer() {
       }
     );
   }
-
 
   // ==================================================
   // START SERVER — ONLY ONCE

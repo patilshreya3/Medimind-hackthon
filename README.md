@@ -249,11 +249,14 @@ SUPABASE_SERVICE_ROLE_KEY accordingly.
  9. NOTES
 --------------------------------------------------------------------------------
 
-- This app was originally scaffolded via Google AI Studio (see metadata.json /
-  original README reference to https://ai.studio).
-- Do not commit your real .env file — only .env.example should be checked in.
-- The Supabase Service Role Key bypasses row-level security; never expose it
-  to the frontend/browser. It is only used in server.ts.
+## Important Engineering & Security Rules
+
+### Project Lineage
+This application was originally scaffolded using **Google AI Studio** templates (see `metadata.json` for baseline configurations). Maintain this structure when syncing with external AI tooling models.
+
+### Environment & Secrets Management
+* **Credential Leak Prevention:** Never commit your active `.env` file to version control. Always document new keys or environment variables inside `.env.example` using placeholder values.
+* **Supabase Security Warning:** The `SUPABASE_SERVICE_ROLE_KEY` bypasses all Row-Level Security (RLS) layers. This token must stay isolated within the `server.ts` layer and **must never** be exposed to the client-side browser bundle.
 
 ================================================================================
 

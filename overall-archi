@@ -1,0 +1,49 @@
+o transform this system into a high-throughput, enterprise-ready emergency network, the platform architecture scales across four core domains: Spatial Databases, Secure API Layers, Real-Time Caching, and Resilient AI Processing Pipelines.text
+                                  ┌───────────────────────────┐
+                                  │   Doctor Note (Input)     │
+                                  └─────────────┬─────────────┘
+                                                │ (Async)
+                                                ▼
+                                  ┌───────────────────────────┐
+ ┌──────────────┐                 │    BullMQ / RabbitMQ      │
+ │  Client JWT  │                 └─────────────┬─────────────┘
+ └──────┬───────┘                               │
+        │                                       ▼
+        ▼                        ┌───────────────────────────────┐
+┌──────────────┐                 │  Resilient Processing Engine  │
+│ Supabase RLS │                 │ ┌───────────────────────────┐ │
+└──────┬───────┘                 │ │ Primary: Gemini Flash     │ │
+        │                        │ └─────────────┬─────────────┘ │
+        ▼                        │               │ (Fallback)    │
+┌──────────────┐                 │               ▼               │
+│ Postgres DB  │◀─[Batch Insert]─│ ┌───────────────────────────┐ │
+│  (PostGIS)   │     (60s)       │ │ Fallback: FastAPI + spaCy │ │
+└──────────────┘                 │ └───────────────────────────┘ │
+        ▲                        └───────────────────────────────┘
+        │
+   [Redis Pub/Sub]
+        ▲
+        │
+┌────────────────────────────────────────────────────────────────┐
+│             High-Availability Real-Time Layer                  │
+│  Leaflet (Web)  ◀───▶  WebSockets  ◀───▶  Node.js Workers      │
+└────────────────────────────────────────────────────────────────┘
+1. Database Architecture & Spatial EngineeringTo achieve true microsecond matching across large geographical zones, the database moves beyond flat latitude/longitude values to native spatial vector calculations:PostGIS Activation: Enables spatial 
+coordinate mapping by running CREATE EXTENSION IF NOT EXISTS postgis;.Geometric Types: Transitions donor and patient request tables to use explicit GEOMETRY(Point, 4326) coordinate types.Proximity Calculations: Replaces manual arithmetic formulas with 
+optimized native geometric functions like ST_DWithin and ST_Distance to check matching proximities in real time.Indexing Optimization: Creates high-efficiency spatial indexes on location clusters using the GiST index structure:sql
+CREATE INDEX idx_donors_location_gist ON donors USING GIST (location);
+
+2.Schema Governance: Manages continuous database state evolution using standard Prisma ORM layers or Supabase CLI migrations.
+ Secure API & Hybrid AuthenticationThe application implements strict zero-trust boundary isolation to prevent sensitive medical data leaks:Row-Level Security (RLS): Enforces native Postgres RLS parameters to restrict anonymous client access. Only 
+authorized entities can fetch active blood matching logs.Token Infrastructure: Restricts frontend public access using a combination of SUPABASE_ANON_KEY variables alongside temporary
+verified user JWT tokens.Service Role Isolation: Restricts the high-clearance SUPABASE_SERVICE_ROLE_KEY exclusively to protected backend worker processes. It is completely blocked from exposure on the client-facing web layer.
+
+3. 3. High-Availability Real-Time LayerTo protect the main database from connection locks during high-stress disaster events, live GPS streams are completely decoupled from the persistence layer:Decoupled Streams: Shifts live donor transit paths and 
+instant socket chat messages away from the core PostgreSQL engine.Transient Data Caching: Routes moving asset logs through a high-speed Redis Pub/Sub instance to handle fleeting tracking streams efficiently.Buffered Batch Operations: Pools tracking inputs
+within memory buffers and writes them to Supabase
+in coordinated intervals (e.g., once every 60 seconds).Write Inflation Prevention: Mitigates risk of row inflation and structural deadlocks during emergency scenarios involving hundreds of simultaneous active couriers.
+
+4.4. Resilient AI Processing PipelineEnsures incoming emergency logs are processed without interruption, even during network failures or API rate limits:Asynchronous Processing: Moves the note-parsing endpoint /api/gemini/parse-doctor-note into a heavy-duty queue
+management engine powered by BullMQ or RabbitMQ.Primary Processing Model: Directs incoming queue items to the Gemini 2.5 Flash or Gemini 3.5 Flash model series to parse doctor handwriting into structured parameters.Automatic Fallback Engine: If an API rate limit triggers,
+a network timeout occurs, or connectivity drops out,
+the system automatically redirects the task to an offline Python FastAPI microservice.Local NLP Processing: The backup local microservice utilizes open-source spaCy pipelines and fine-tuned MedSpaCy NLP packages to extract key medical data offline

@@ -59,6 +59,9 @@ Database / Storage:
   - No local schema/migration files are included in this repo — tables are
     expected to already exist in your Supabase project (see Section 6).
 
+
+deployment / hosting :
+    - vercel and Supabase inter connections with secrate key and URL  
 --------------------------------------------------------------------------------
  3. PROJECT STRUCTURE
 --------------------------------------------------------------------------------

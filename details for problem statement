@@ -1,0 +1,52 @@
+# Problem Statement: Emergency Blood & Platelet Availability and Rapid Response System
+
+## 1. Background & Context
+During acute medical crises, patient survival hinges entirely on the immediate availability of whole blood or specific blood components like platelets. Currently, coordinating the supply chain during critical windows falls on distressed families and siloed hospital staff. This requires them to manually bridge communication gaps between regional blood banks, independent medical facilities, and eligible on-call donors while managing an incredibly compressed timeline where every minute counts.
+
+An automated, decentralized network is required to unify these disjointed stakeholders. Digital infrastructure must dynamically resolve available supply chains based on blood group, item type, geographical proximity, and real-time medical triage urgency.
+
+## 2. The Core Pain Points
+* **Siloed Resource Fragmentations:** Finding rare blood types or fragile components (such as platelets, which carry strict shelf-life limitations) forces staff to execute manual, sequential outreach phone calls and cross-reference localized spreadsheets.
+* **Geospatial & Logistical Delays:** The absence of spatial intelligence prevents matching systems from routing requests to the closest optimal asset, lengthening transit timelines.
+* **Communication Latency:** Manual notification systems create massive delays in donor engagement, slowing down critical field confirmations during mass-casualty events or acute surges.
+* **Lack of End-to-End Visibility:** Once an emergency request is triggered, hospitals have no tracking mechanism to monitor donor dispatch milestones, courier telemetry, or inventory allocation changes.
+
+---
+
+## 3. Core Technical & Functional Requirements
+
+### Request Intake & Metadata Capture
+* Provide authorized clinical portals to immediately initiate urgent blood/platelet requisitions.
+* Enforce strict validation rules to extract high-fidelity structured data, including:
+  * Blood Group & Specific Rh Factor
+  * Component Type (e.g., Whole Blood, Packed Red Cells, Platelets)
+  * Precise Quantity Units
+  * Geospatial Location Coordinates
+  * Real-time Urgency Tier
+
+### Intelligent Matchmaking & Resource Optimization
+* **Compatibility Engine:** Instantly compute valid recipient-donor permutations according to exact clinical blood group compatibility matrices.
+* **Geospatial Proximity Filtering:** Use location-aware querying to identify available supply nodes inside a strict traveling radius.
+* **Dynamic Triage Prioritization:** Implement algorithmic queuing that ranks incoming fulfillment tasks based on current systemic scarcity and emergency tier levels.
+
+### Closed-Loop Dispatch & Monitoring
+* **Multi-Channel Alert Dispatching:** Programmatically broadcast concurrent alert cycles (via SMS, Push, or App Alerts) to target matching donors and local blood bank staff.
+* **Bidirectional Response Pipeline:** Capture donor responses instantly via single-tap acceptance workflows, automatically executing backup fallback routines if a donor fails to respond.
+* **Lifecycle State Tracking:** Record and map every state mutation from initial ingestion, down to donor matching, in-transit telemetry, and final delivery verification.
+
+### Compliance, Verification, & Persistence
+* Apply secure permission scopes and cryptographic validation layers to keep sensitive patient identifiers private.
+* Maintain a real-time ledger of regional inventory metrics to eliminate stale data errors across participating network facilities.
+
+---
+
+## 4. Engineering Evaluation Metrics
+
+| Metric | Target Technical Objective | Evaluation Criteria |
+| :--- | :--- | :--- |
+| **Matching Accuracy** | Zero-fault processing of complex blood configurations. | Accuracy of compatibility matches and resource allocations. |
+| **Response Speed** | Minimal latency between request generation and node discovery. | Speed of identifying available nearby resources. |
+| **Location Efficiency** | Optimal travel radius reduction for fast delivery. | Effectiveness of nearby resource identification. |
+| **Request Prioritization** | Deterministic sorting of life-threatening events. | Quality and logic of emergency prioritization. |
+| **Communication Effectiveness** | Low-latency message delivery and high reply conversion. | Reliability and delivery rate of notifications and responses. |
+| **Request Traceability** | Immutable auditing of every state change across the pipeline. | Ability to track the complete emergency request lifecycle. |

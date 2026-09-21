@@ -1,0 +1,49 @@
+ Core Value Propositions & Platform Impacts1. Speed & Life-SavingRapid delivery when every minute counts.Benefits:Accelerated Delivery: Streamlines the movement of blood and platelets directly to frontline clinical teams.Rapid Allocation: Automated matching algorithms reduce the end-to-end response time to under 15 minutes.Chain of Custody Tracking: Real-time visibility from storage units to final transfusion bedsides.Proactive Alerts: Integrated notification loops trigger critical warnings for low-inventory thresholds.Impact:Faster clinical interventions significantly improve patient survival rates.Reduced mortality rates during severe trauma events and surgical emergencies.⚙️ 2. Operational EfficiencyStreamlined workflow for lab and hospital teams.Benefits:Centralized Analytics: Unified dashboard providing real-time visibility into local blood and platelet inventories.Seamless Coordination: Synchronizes communication between laboratories, external blood banks, and internal hospital wards.Reduced Overhead: Minimizes manual paperwork, lowering the administrative burden on medical personnel.Impact:Maximizes workflow efficiency, allowing lab techs and nurses to focus heavily on patient care rather than logistics.🤝 3. Donor ManagementConnected donor network for responsive donation cycles.Benefits:Dynamic Matching: Real-time analysis of donor eligibility paired directly with regional patient demand.Automated Scheduling: Instant donor notifications and integrated appointment booking loops.Tracking Logs: Maintains historical timelines of donor history and specific platelet eligibility parameters.Secure Governance: Strict consent workflows and robust health data management architectures.Impact:Boosts long-term donor engagement and increases repeat donation rates.Maintains a balanced, resilient supply chain capable of absorbing sudden platelet demand fluctuations.🛡️ 4. Mass Casualty Ready & ImpactsPreparedness and resilience during large-scale emergencies.Benefits:Surge Management: Rapidly scales capacity tracking and allocation logistics during mass casualty incidents.Prioritized Triage: Intelligent routing and distribution systems for critical blood products.Resource Pooling: Coordinated multi-hospital networks for inter-facility resource sharing.One-Click Protocols: Instant emergency workflow activation to mobilize resources immediately.Impact:Significantly improves population health outcomes and systemic crisis response times.Enhances overall infrastructure readiness and operational resilience across hospital networks.🚀 Tech StackFrontend ArchitectureFramework: React 19 + TypeScriptBuild Tool / Dev Server: Vite 8Styling Engine: Tailwind CSS 4Geospatial Maps: Leaflet + @types/leaflet (Dynamic transit paths & demand heatmaps)Animations: Framer Motion (motion)Iconography: Lucide ReactBackend InfrastructureRuntime Environment: Node.js + Express 4 (server.ts)Development Execution: tsx (TypeScript live execution)Production Bundler: esbuild (Compiles codebase down to optimized production files)Artificial Intelligence Layer: Google GenAI SDK (@google/genai utilizing the Gemini model series)Environment Management: dotenvDatabase & Cloud InfrastructurePrimary Database: Supabase (Hosted scalable PostgreSQL engine)Hosting Systems: Connected deployment structures between Vercel (Frontend assets) and Render Web Services (Backend APIs) using secure environment strings.📂 Project Structuretextmeditech-blood-platelet-rapid-response/
+├── server.ts                     # Express app: API routes, Gemini SDK, & Supabase client setup
+├── index.html                    # Vite web application root entry
+├── package.json                  # System scripts, core framework modules, & dependencies
+├── tsconfig.json                 # Strict TypeScript configuration profiles
+├── vite.config.ts                # Vite execution compilation setup
+├── metadata.json                 # Application parameters mapped for Google AI Studio
+├── .env.example                  # Reference template for required deployment configurations
+└── src/
+    ├── main.tsx                  # Application mount target and global configurations
+    ├── App.tsx                   # Core UI Router and master component wrapper
+    ├── index.css                 # Master styles importing Tailwind directives
+    ├── components/
+    │   ├── AiEmergencyCoordinator.tsx      # Handles AI parsing of doctor notes to request inputs
+    │   ├── AiMatchScoreModal.tsx           # Displays compatibility matrix scores for donors
+    │   ├── AuditReportModal.tsx            # Generates cryptographically secure tracking logs
+    │   ├── BloodBankInventory.tsx          # Real-time stock levels and low-supply warnings
+    │   ├── BloodShortagePrediction.tsx     # Predictive models forecasting stock exhaustions
+    │   ├── CompatibilityMatrixModal.tsx    # Interactive cross-match blood type table
+    │   ├── DonorChainFailover.tsx          # Fallback router executing if prime donor drops out
+    │   ├── DynamicPriorityExplanation.tsx  # Dynamic UI detailing why a case is triage-prioritized
+    │   ├── EmergencyHeatmap.tsx            # Leaflet-powered visual high-demand grid map
+    │   ├── EmergencyRequestForm.tsx        # Standard manual data entry interface form
+    │   ├── Header.tsx                      # Main navigation header with light/dark toggles
+    │   ├── HospitalResourceSharing.tsx     # Inter-hospital borrow/lend transaction ledger
+    │   ├── LiveGpsTracking.tsx             # Real-time geolocation updates for blood couriers
+    │   ├── MassCasualtyAndSimulator.tsx    # Trigger tool mimicking disaster scenarios
+    │   ├── MetricsRibbon.tsx               # High-level operational ribbon (e.g., <15m delivery)
+    │   ├── MultiChannelAlerts.tsx          # Dispatches push notifications, SMS alerts, and emails
+    │   ├── OneTapDonorResponseModal.tsx    # Streamlined quick accept/decline action modal
+    │   ├── RealMessagingModal.tsx          # Live web socket chatting between staff and couriers
+    │   ├── RealTransitMap.tsx              # Vector map layout calculating delivery paths
+    │   └── RequestLifecycleTracker.tsx     # Linear milestone bar tracking state from raised to fulfilled
+    ├── context/
+    │   ├── LanguageContext.tsx             # Internationalization hooks (i18n multi-language support)
+    │   └── ThemeContext.tsx                # Context provider for standard Light & Dark modes
+    ├── data/
+    │   └── mockData.ts                     # Local developmental sandbox testing datasets
+    ├── i18n/
+    │   └── translations.ts                 # Direct multi-language translation data dictionaries
+    ├── types/
+    │   └── index.ts                        # Shared strict global TypeScript type definitions
+    └── utils/
+        └── compatibility.ts                # Programmatic functions calculating universal cross-matches
+Use code with caution.🛠️ Step-by-Step Local Deployment Installation1. Clone the Codebase & Install DependenciesFirst, pull the repository down and install the required modules:bashnpm install
+Use code with caution.2. Configure Environment VariablesCreate a .env file in the root directory of your workspace (referencing the .env.example structure) and populate the values below:iniGEMINI_API_KEY=your_google_gemini_api_key_here
+APP_URL=http://localhost:3000
+SUPABASE_URL=your_supabase_project_endpoint_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_secret_service_role_ke.
